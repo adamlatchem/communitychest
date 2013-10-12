@@ -1,1 +1,4 @@
 # Config settings for NODE_ENV=production
+
+app:
+  port: 8100
