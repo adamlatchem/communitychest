@@ -7,6 +7,7 @@ var cheerio = require('cheerio');
 var http = require('http');
 var url = require('url');
 var express = require('express');
+var Handlebars = require('handlebars');
 var app = express();
 
 // Trust X-Forwardedi-* fields
@@ -26,8 +27,8 @@ var connection = mysql.createConnection({
   password : 'password',
 });
 
-var projectTemplate = fs.readFileSync(__dirname + 'templates/project.hbs');
-var template = Handlebars.compile(projectTemplate);
+var projectTemplate = fs.readFileSync(__dirname + '/templates/project.hbs');
+var template = Handlebars.compile(projectTemplate.toString());
 
 connection.connect();
 connection.query('SELECT * FROM communitychest.project', function(err, rows, fields) {
@@ -85,7 +86,6 @@ function onProject(req, res, next) {
     var result = template(data);
     res.write(result);
   } else {
-    // res.sendfile('gui/project.html');
     
     // return 404 error
     res.status(404);
@@ -127,7 +127,7 @@ function ProjectQuery(res, searchParameters)
   for (var key in projects) {
     var p = projects[key];
     if (p.name.indexOf(searchParameters.title) != -1) {
-      var r = new Array("<a href='/project/" + key + "'>" + p.name + "</a>");
+      var r = new Array("<a href='project/" + key + "'>" + p.name + "</a>");
       table.rows.push(r);
     }
   };
@@ -142,11 +142,14 @@ function ProjectQuery(res, searchParameters)
 // Log all requests
 app.use(express.logger());
 
+app.param('id', function(req, res, next, id) {
+  req.id = id;
+});
+
 // Endpoints
 app.use('/login', onLogin);
 app.use('/register', onRegister);
 app.use('/newProject', onNewProject);
-app.use('/project', onProject);
 app.use('/project/:id', onProject)
 app.use('/find', onFind);
 
