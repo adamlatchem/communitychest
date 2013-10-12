@@ -26,6 +26,9 @@ var connection = mysql.createConnection({
   password : 'password',
 });
 
+var projectTemplate = fs.readFileSync(__dirname + 'templates/project.hbs');
+var template = Handlebars.compile(projectTemplate);
+
 connection.connect();
 connection.query('SELECT * FROM communitychest.project', function(err, rows, fields) {
   if (err) throw err;
@@ -77,7 +80,17 @@ function onNewProject(req, res, next) {
 }
 
 function onProject(req, res, next) {
-  res.sendfile('gui/project.html');
+  if (req.id) {
+    var data = projects[req.id];
+    var result = template(data);
+    res.write(result);
+  } else {
+    // res.sendfile('gui/project.html');
+    
+    // return 404 error
+    res.status(404);
+    res.send('<h1>Error</h1>');
+  }
 }
 
 // Send HTTP request where body is json dictionary:
@@ -103,18 +116,18 @@ function GenericRequestProcessor(req, res, clazz)
   });
 }
 
-function ProjectQuery(res, body)
+function ProjectQuery(res, searchParameters)
 {
-  body = JSON.parse(body);
+  searchParameters = JSON.parse(searchParameters);
 
   // filter projects by name
   var table = {};
-  table.columns = ['title','url'];
+  table.columns = ['title'];
   table.rows = new Array();
   for (var key in projects) {
     var p = projects[key];
-    if (p.name.indexOf(body.title) != -1) {
-      var r = new Array(p.name, 'test');
+    if (p.name.indexOf(searchParameters.title) != -1) {
+      var r = new Array("<a href='/project/" + key + "'>" + p.name + "</a>");
       table.rows.push(r);
     }
   };
@@ -134,6 +147,7 @@ app.use('/login', onLogin);
 app.use('/register', onRegister);
 app.use('/newProject', onNewProject);
 app.use('/project', onProject);
+app.use('/project/:id', onProject)
 app.use('/find', onFind);
 
 // send remaining requests to the gui folder

@@ -41,9 +41,12 @@
 		</div>
 		<div class="span6">
 			<form>
-				<fieldset>
-					 <legend>Legend</legend> <label>Label name</label><input type="text"> <span class="help-block">Example block-level help text here.</span> <label class="checkbox"><input type="checkbox"> Check me out</label> <button type="submit" class="btn">Submit</button>
-				</fieldset>
+				<label>Project name</label><input type="text">{{name}}<input>
+				<label>Tagline</label><input type="text">{{header}}<input>
+				<label>Description</label><input type="text">{{body}}<input>
+				<label>Latitude</label><input type="text">{{location.lat}}<input>
+				<label>Longitude</label><input type="text">{{location.long}}<input>
+				<button type="submit" class="btn">Save</button>
 			</form>
 		</div>
 		<div class="span4">
