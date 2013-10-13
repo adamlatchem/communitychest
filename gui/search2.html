@@ -58,9 +58,9 @@ var mapContainer = document.getElementById("mapContainer");
 var map = new nokia.maps.map.Display(mapContainer, {
 	// Initial center and zoom level of the map
 	center: [51.48, 0],
-	zoomLevel: 15,
+	zoomLevel: 13,
 	// We add the behavior component to allow panning / zooming of the map
-	components:[new nokia.maps.map.component.Behavior()]
+	components:[new nokia.maps.map.component.ZoomBar(),new nokia.maps.map.component.Behavior()]
 });
 
 // We predefine some StandardMarker properties:
@@ -139,7 +139,7 @@ projects.forEach(function(i){
 
       }
     }
-    xmlhttp.open('POST', 'http://localhost:8200/projects', true);
+    xmlhttp.open('POST', 'http://www.intrepiduniverse.com/communitychest/projects', true);
     xmlhttp.setRequestHeader('Content-Type', 'application/json');
     xmlhttp.send('');
 
