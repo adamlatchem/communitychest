@@ -31,6 +31,7 @@
   function onSave()
   {
     var form = document.forms[0];
+    var form1 = document.forms[1];
     var project = {
       id : form.id.value,
       name : form.name.value,
@@ -40,10 +41,10 @@
         lat : form.lat.value,
         long : form.long.value
       },
-      icon : form.icon.value
+      icon : form.icon.value,
+      amount : form1.amount.value
     };
     msgData = JSON.stringify(project);
-    console.log(msgData);
 
     var xmlhttp;
     if (window.XMLHttpRequest)
@@ -67,6 +68,41 @@
 
     $('#pleaseWait').show();
   }
+
+  function onPay()
+  {
+    var form = document.forms[1];
+    var prj = document.forms[0];
+    var data = {
+      id : prj.id.value,
+      amount : form.payamount.value
+    };
+    msgData = JSON.stringify(data);
+
+    var xmlhttp;
+    if (window.XMLHttpRequest)
+    {// code for IE7+, Firefox, Chrome, Opera, Safari
+      xmlhttp = new XMLHttpRequest();
+    }
+    else
+    {// code for IE6, IE5
+      xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
+    }
+    xmlhttp.onreadystatechange = function()
+    {
+      if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+      {
+        setTimeout(function() { location.reload(); }, 0 );
+      }
+      $('#pleaseWait').hide();
+    }
+    xmlhttp.open('POST', '../payment', true);
+    xmlhttp.setRequestHeader('Content-Type', 'application/json');
+    xmlhttp.send(msgData);
+
+    $('#pleaseWait').show();
+  }
+
   </script>
 </head>
 
@@ -74,7 +110,7 @@
 <h1>Community Chest</h1>
 <div class="modal hide" id="pleaseWait" data-backdrop="static" data-keyboard="false">
   <div class="modal-header">
-    <center><h1>Saving ...</h1></center>
+    <center><h1>Processing ...</h1></center>
   </div>
   <div class="modal-body">
     <div class="progress progress-striped active">
@@ -94,11 +130,10 @@
     <div class="span6">
       <form action="javascript:onSave()">
         <img src="{{icon}}" /><input type="hidden" value="{{id}}" id="id">
-        <iframe style="vertical-align: middle" src="../map.html" width="128px" height="128px"></iframe>
         <br><input type="text" value="{{icon}}" id="icon">
         <label>Project name</label><input type="text" value="{{name}}" id="name">
         <label>Tagline</label><input type="text" value="{{header}}" id="header">
-        <label>Description</label><input type="text" value="{{body}}" id="body">
+        <label>Description</label><textarea id="body" rows="8">{{body}}</textarea>
         <label>Latitude</label><input type="text" value="{{location.lat}}" id="lat">
         <label>Longitude</label><input type="text" value="{{location.long}}" id="long">
         <img src="http://www.projectmanager.com/images/showcase/gantt-charts-1.jpg"/>
@@ -106,6 +141,12 @@
       </form>
     </div>
   <div class="span4">
+    <iframe style="vertical-align: middle" src="../map.html" width="128px" height="128px"></iframe>
+    <form action="javascript:onPay()">
+        <h2>£<span id='amount'>{{amount}}</span></h2>
+        <label>Pay £</label><input type="text" id="payamount">
+        <p><button type="submit" class="btn"><img src="https://www.paypalobjects.com/en_US/i/logo/pp_secure_213wx37h.gif"> Contribute</button>
+    </form>
   </div>
 </div>
 </body>

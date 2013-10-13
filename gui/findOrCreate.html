@@ -81,7 +81,8 @@
     {
       if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
       {
-        $('body').html(xmlhttp.responseText);
+        console.log(xmlhttp.responseText);
+        location.href = xmlhttp.responseText;
       }
       $('#pleaseWait').hide();
     }

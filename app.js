@@ -1,5 +1,6 @@
 // -----------------------------------------------------------------------------
 // Create an express app
+var paypal_sdk = require('paypal-rest-sdk');
 var fs = require('fs');
 var xml2js = require('xml2js');
 var punycode = require('punycode');
@@ -16,6 +17,19 @@ app.enable('trust proxy')
 // No environment specific stuff yet
 app.set('title', 'CommunityChest');
 process.title = '*** CommunityChest ***'
+
+// Paypal
+paypal_sdk.configure({
+  'host': 'api.sandbox.paypal.com',
+  'client_id': 'AcpOchAW4iH1IQMhdJu7989ZyS4wEO29saJwDA0k-SoV1GW2oJvsceXQmGuO',
+  'client_secret': 'EAiMwhBJ872QVI2iTAuRCvwu6KrgAwWT1iNJ9DP6hDb_HYlArRVDycy5Tc5r' });
+paypal_sdk.generate_token(function(error, token){
+  if(error){
+    console.error(error);
+  } else {
+    console.log(token);
+  }
+});
 
 // -----------------------------------------------------------------------------
 // Database mapping table
@@ -100,16 +114,14 @@ function NewProject(res, name)
   var data = { data : JSON.stringify(newProject) };
   db.query("REPLACE INTO communitychest.project SET ?", data, function(err, result) {
     db.end();
-    res.end();
 
     // Store in cache
     newProject.id = result.insertId;
     projects[result.insertId] = newProject;
 
     // go to project page
-    res.req.params = {};
-    res.req.params.id = result.insertId;
-    ProjectDisplay(res, null);
+    res.write("http://www.intrepiduniverse.com/communitychest/project/" + result.insertId);
+    res.end();
   });
 }
 
@@ -191,6 +203,58 @@ function ProjectQuery(res, searchParameters)
   sendResultAsTable(res, table);
 };
 
+function onPayment(req, res, next) {
+  GenericRequestProcessor(req, res, mkPayment);
+}
+
+function mkPayment(res, prj)
+{
+  prj = JSON.parse(prj);
+  var amount = prj.amount;
+  prj = projects[prj.id];
+  prj.amount = String(parseFloat(prj.amount) + parseFloat(amount));
+
+  var payment_details = {
+    "intent": "sale",
+    "payer": {
+      "payment_method": "credit_card",
+      "funding_instruments": [{
+        "credit_card": {
+          "type": "visa",
+          "number": "4417119669820331",
+          "expire_month": "11",
+          "expire_year": "2018",
+          "cvv2": "874",
+          "first_name": "Joe",
+          "last_name": "Shopper",
+          "billing_address": {
+            "line1": "52 N Main ST",
+            "city": "Johnstown",
+            "state": "OH",
+            "postal_code": "43210",
+            "country_code": "US" }}}]},
+    "transactions": [{
+      "amount": {
+        "total": amount,
+        "currency": "GBP",
+        "details": {
+          "subtotal": amount,
+          "tax": "0.00",
+          "shipping": "0.00"}},
+      "description": prj.title }]};
+
+  console.log(payment_details);
+
+  paypal_sdk.payment.create(payment_details, function(error, payment){
+    if(error){
+      console.error(error);
+    } else {
+      console.log(payment);
+    }
+    SaveProject(res, JSON.stringify(prj));
+  });
+}
+
 // -----------------------------------------------------------------------------
 // Setup Middleware and endpoints then start serving
 
@@ -204,6 +268,7 @@ app.use('/newProject', onNewProject);
 app.use('/saveProject', onSaveProject);
 app.get('/project/:id', onProject);
 app.use('/find', onFind);
+app.use('/payment', onPayment);
 
 // send remaining requests to the gui folder
 app.use(express.static(__dirname + '/gui'));
