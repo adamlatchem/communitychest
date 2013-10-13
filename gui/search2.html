@@ -1,57 +1,151 @@
-  <script>
-  function runQuery()
-  {
-    var data = document.forms[0].query.value.split(' ');
-    var msgData = {};
-    var words = Array();
-    for (var i = 0; i < data.length; ++i)
-    {
-      var kw = data[i];
-      if (kw.length == 0)
-      {
-        // skip
-      }
-      else if (kw.indexOf(':') > -1)
-      {
-        kvPair = kw.split(':');
-        msgData[kvPair[0]] = kvPair[1];
-      }
-      else
-      {
-        words.push(kw);
-      }
-    }
-    if (words.length)
-    {
-      msgData['words'] = words;
-    }
-    msgData = JSON.stringify(msgData);
+<!DOCTYPE html>
+<html> 
+	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=7; IE=EmulateIE9; IE=10" />
+		<base href="http://developer.here.com/apiexplorer/examples/api-for-js/markers/styled-marker.html" />
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+		<title>Nokia Maps API for JavaScript Example: Add styled standard marker</title>
+		<meta name="description" content="Customize the style of a marker"/>
+		<meta name="keywords" content="standardmarkerprops, map objects, markers"/>
+		<!-- For scaling content for mobile devices, setting the viewport to the width of the device-->
+		<meta name=viewport content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<!-- Styling for example container (NoteContainer & Logger)  -->
+		<link rel="stylesheet" type="text/css" href="http://developer.here.com/apiexplorer/examples/templates/js/exampleHelpers.css"/>
+		<!-- By default we add ?with=all to load every package available, it's better to change this parameter to your use case. Options ?with=maps|positioning|places|placesdata|directions|datarendering|all -->
+		<script type="text/javascript" charset="UTF-8" src="http://js.cit.api.here.com/se/2.5.3/jsl.js?with=all"></script>
+		<!-- JavaScript for example container (NoteContainer & Logger)  -->
+		<script type="text/javascript" charset="UTF-8" src="http://developer.here.com/apiexplorer/examples/templates/js/exampleHelpers.js"></script>
+		<style type="text/css">
+			html {
+				overflow:hidden;
+			}
+			
+			body {
+				margin: 0;
+				padding: 0;
+				overflow: hidden;
+				width: 100%;
+				height: 100%;
+				position: absolute;
+			}
+			
+			#mapContainer {
+				width: 100%;
+				height: 100%;
+				left: 0;
+				top: 0;
+				position: absolute;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="mapContainer"></div>
+		<div id="uiContainer"></div>
+		<script type="text/javascript" id="exampleJsSource">
+/*	Setup authentication app_id and app_code 
+*	WARNING: this is a demo-only key
+*	please register for an Evaluation, Base or Commercial key for use in your app.
+*	Just visit http://developer.here.com/get-started for more details. Thank you!
+*/
+nokia.Settings.set("app_id", "DemoAppId01082013GAL"); 
+nokia.Settings.set("app_code", "AJKnXv84fjrb0KIHawS0Tg");
+// Use staging environment (remove the line for production environment)
+nokia.Settings.set("serviceMode", "cit");
 
-    var xmlhttp;
-    if (window.XMLHttpRequest)
-    {// code for IE7+, Firefox, Chrome, Opera, Safari
-      xmlhttp = new XMLHttpRequest();
-    }
-    else
-    {// code for IE6, IE5
-      xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
-    }
-    xmlhttp.onreadystatechange = function()
-    {
-      if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
-      {
-        $('#resultTable').html(xmlhttp.responseText);
-      }
-      $('#pleaseWait').hide();
-    }
-    xmlhttp.open('POST', 'query', true);
-    xmlhttp.setRequestHeader('Content-Type', 'application/json');
-    xmlhttp.send(msgData);
+// Get the DOM node to which we will append the map
+var mapContainer = document.getElementById("mapContainer");
+// Create a map inside the map container DOM node
+var map = new nokia.maps.map.Display(mapContainer, {
+	// Initial center and zoom level of the map
+	center: [51.48, 0],
+	zoomLevel: 15,
+	// We add the behavior component to allow panning / zooming of the map
+	components:[new nokia.maps.map.component.Behavior()]
+});
 
-    $('#pleaseWait').show();
-  }
-</script>
+// We predefine some StandardMarker properties:
+var standardMarkerProps = [
+		null, // No properties object is specified, so default ones will be used
+		{
+			// - text: the text displayed in the middle of the shape.
+			text: "42",
+			/* - brush: The color to draw interior of the shape.
+			 * 		It can be either an instance of nokia.maps.map.Brush or an object literal.
+			 */
+			brush: {
+				// fillcolor of brush
+				color: "#F80"
+			}
+		},
+		{
+			text: "@",
+			brush: {
+				color: "#F80"
+			},
+			/* - textPen: the color which is used to draw the label text of the shape. It's useful to change,
+			 * 		when choosing brighter fill colors
+			 * 		It can be either an instance of nokia.maps.map.Pen or an object literal.
+			 */
+			textPen: {
+				strokeColor: "#333"
+			}
+		},
+		{
+			text: "Hi",
+			textPen: {
+				strokeColor: "#333"
+			},
+			brush: {
+				color: "#FFF"
+			},
+			/* - pen: the color which is used to draw the outline of the shape.
+			 * 		When you use very bright fill colors for your brush color we 
+			 * 		recommed changing it or else your markers may not be recognizable on the map.
+			 * 		It can be either an instance of nokia.maps.map.Pen or an object literal.
+			 */
+			pen: {
+				strokeColor: "#333"
+			}
+		}
+	],
+	i = 4; // Little counter to loop over above properties object
 
-      <form class='form-search' action='javascript:runQuery()'>
-        <input type='text' class='span8 search-query' id='query'> <button type='submit' class='btn'>Search</button>
-      </form>
+// Create several StandardMarkers with the properties object defined above and placed around the map center
+while (i--) 
+	map.objects.add(new nokia.maps.map.StandardMarker(
+		/* We use  nokia.maps.geo.Coordinate.walk to generate
+		 * geoCoordinate for created StandardMarker;
+		 * 
+		 * Coordinate.walk takes 3 arguments
+		 * 		- bearing: The bearing to use in the calculation in degrees 
+		 * 		- distance: The distance to the destination in meters 
+		 * 		- [overGreatCircle]: Optional argument
+		 * 				By default false. 
+		 * 				If set true the computation uses the "Great Circle" algorithm otherwise "Rhumb Line". 
+		 */
+		map.center.walk(360 / standardMarkerProps.length * i, 200), 
+		// Initial values for StandardMarker properties
+		standardMarkerProps[i] 
+	));
+
+/* We create a UI notecontainer for example description
+ * NoteContainer is a UI helper function and not part of the Nokia Maps API
+ * See exampleHelpers.js for implementation details 
+ */
+var noteContainer = new NoteContainer({
+	id: "standardMarkerPropsUi",
+	parent: document.getElementById("uiContainer"),
+	title: "Changing the style <br/ > of a StandardMarker",
+	content:
+		'<p>This example shows how to change the style of a StandardMarker by setting its properties. ' +
+		'<p>You can set the following properties:</p><ul>' +
+		'<li><code>shape</code> (the shape type)</li>' +
+		'<li><code>brush</code> (the fill color)</li>' +
+		'<li><code>pen</code> (the stroke color)</li>' +
+		'<li><code>textPen</code> (the text color)</li>' +
+		'<li><code>text</code> (the label text)</li>' +
+		'</ul></p>' 
+});
+		</script>
+	</body>
+</html>
