@@ -192,6 +192,9 @@ function ProjectQuery(res, searchParameters)
   table.columns = ['title'];
   table.rows = new Array();
   for (var key in projects) {
+    if (key == 1) {
+      continue;
+    }
     var p = projects[key];
     if (p.name.indexOf(searchParameters.title) != -1) {
       var r = new Array("<a href='project/" + key + "'>" + p.name + "</a>");
