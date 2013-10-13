@@ -53,19 +53,27 @@ nokia.Settings.set("app_code", "AJKnXv84fjrb0KIHawS0Tg");
 // Use staging environment (remove the line for production environment)
 nokia.Settings.set("serviceMode", "cit");
 
+var longControl = parent.document.getElementById("long");
+var latControl = parent.document.getElementById("lat");
+console.log(longControl.value);
+console.log(latControl.value);
 // Get the DOM node to which we will append the map
 var mapContainer = document.getElementById("mapContainer");
 // Create a map inside the map container DOM node
 var map = new nokia.maps.map.Display(mapContainer, {
 	// initial center and zoom level of the map
-	center: [51.48,0],
-	zoomLevel: 12
+	center: [parseFloat(latControl.value),parseFloat(longControl.value)],
+	zoomLevel: 12,
+	components: [
+		// We add the behavior component to allow panning / zooming of the map
+		new nokia.maps.map.component.Behavior()
+]
 });
 
 var standardMarker = new nokia.maps.map.StandardMarker(map.center);
 // Next we need to add it to the map's object collection so it will be rendered onto the map.
 map.objects.add(standardMarker);
-
+//}
 		</script>
 	</body>
 </html>
