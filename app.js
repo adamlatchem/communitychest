@@ -206,6 +206,11 @@ function ProjectQuery(res, searchParameters)
   sendResultAsTable(res, table);
 };
 
+function onProjects(req, res, next) {
+  res.write(JSON.stringify(projects));
+  res.end();
+}
+
 function onPayment(req, res, next) {
   GenericRequestProcessor(req, res, mkPayment);
 }
@@ -272,6 +277,7 @@ app.use('/saveProject', onSaveProject);
 app.get('/project/:id', onProject);
 app.use('/find', onFind);
 app.use('/payment', onPayment);
+app.use('/projects', onProjects);
 
 // send remaining requests to the gui folder
 app.use(express.static(__dirname + '/gui'));
