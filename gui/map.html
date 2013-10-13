@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html> 
+	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=7; IE=EmulateIE9; IE=10" />
+		<base href="http://developer.here.com/apiexplorer/examples/api-for-js/getting-started/basic-map.html" />
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+		<title>Nokia Maps API for JavaScript Example: Basic map</title>
+		<meta name="description" content="How to create a basic map"/>
+		<meta name="keywords" content="basic,Getting started"/>
+		<!-- For scaling content for mobile devices, setting the viewport to the width of the device-->
+		<meta name=viewport content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<!-- Styling for example container (NoteContainer & Logger)  -->
+		<link rel="stylesheet" type="text/css" href="http://developer.here.com/apiexplorer/examples/templates/js/exampleHelpers.css"/>
+		<!-- By default we add ?with=all to load every package available, it's better to change this parameter to your use case. Options ?with=maps|positioning|places|placesdata|directions|datarendering|all -->
+		<script type="text/javascript" charset="UTF-8" src="http://js.cit.api.here.com/se/2.5.3/jsl.js?with=all"></script>
+		<!-- JavaScript for example container (NoteContainer & Logger)  -->
+		<script type="text/javascript" charset="UTF-8" src="http://developer.here.com/apiexplorer/examples/templates/js/exampleHelpers.js"></script>
+		<style type="text/css">
+			html {
+				overflow:hidden;
+			}
+			
+			body {
+				margin: 0;
+				padding: 0;
+				overflow: hidden;
+				width: 100%;
+				height: 100%;
+				position: absolute;
+			}
+			
+			#mapContainer {
+				width: 100%;
+				height: 100%;
+				left: 0;
+				top: 0;
+				position: absolute;
+			}
+		</style>
+	</head>
+	<body>
+	<p>oops</p>
+		<div id="mapContainer"></div>
+		<div id="uiContainer"></div>
+		<script type="text/javascript" id="exampleJsSource">
+/*	Setup authentication app_id and app_code 
+*	WARNING: this is a demo-only key
+*	please register for an Evaluation, Base or Commercial key for use in your app.
+*	Just visit http://developer.here.com/get-started for more details. Thank you!
+*/
+nokia.Settings.set("app_id", "DemoAppId01082013GAL"); 
+nokia.Settings.set("app_code", "AJKnXv84fjrb0KIHawS0Tg");
+// Use staging environment (remove the line for production environment)
+nokia.Settings.set("serviceMode", "cit");
+
+// Get the DOM node to which we will append the map
+var mapContainer = document.getElementById("mapContainer");
+// Create a map inside the map container DOM node
+var map = new nokia.maps.map.Display(mapContainer, {
+	// initial center and zoom level of the map
+	center: [51.55,0],
+	zoomLevel: 17
+});
+
+var standardMarker = new nokia.maps.map.StandardMarker(map.center);
+// Next we need to add it to the map's object collection so it will be rendered onto the map.
+map.objects.add(standardMarker);
+
+/* We create a UI notecontainer for example description
+ * NoteContainer is a UI helper function and not part of the Nokia Maps API
+ * See exampleHelpers.js for implementation details 
+ */
+ var noteContainer = new NoteContainer({
+	id: "basicMapUi",
+	parent: document.getElementById("uiContainer"),
+	title: "Project1",
+	content:
+		'<p>No really i need a new laptop</p>'
+});
+
+		</script>
+	</body>
+</html>
