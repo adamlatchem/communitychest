@@ -59,6 +59,7 @@
     {
       if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
       {
+        setTimeout(function() { location.reload(); }, 0 );
       }
       $('#pleaseWait').hide();
     }
