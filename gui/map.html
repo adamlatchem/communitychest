@@ -58,25 +58,13 @@ var mapContainer = document.getElementById("mapContainer");
 // Create a map inside the map container DOM node
 var map = new nokia.maps.map.Display(mapContainer, {
 	// initial center and zoom level of the map
-	center: [51.55,0],
-	zoomLevel: 17
+	center: [51.48,0],
+	zoomLevel: 12
 });
 
 var standardMarker = new nokia.maps.map.StandardMarker(map.center);
 // Next we need to add it to the map's object collection so it will be rendered onto the map.
 map.objects.add(standardMarker);
-
-/* We create a UI notecontainer for example description
- * NoteContainer is a UI helper function and not part of the Nokia Maps API
- * See exampleHelpers.js for implementation details 
- */
- var noteContainer = new NoteContainer({
-	id: "basicMapUi",
-	parent: document.getElementById("uiContainer"),
-	title: "Project1",
-	content:
-		'<p>No really i need a new laptop</p>'
-});
 
 		</script>
 	</body>
