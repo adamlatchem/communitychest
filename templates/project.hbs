@@ -42,7 +42,7 @@
         long : form.long.value
       },
       icon : form.icon.value,
-      amount : form1.amount.value
+      amount : form1.amount.text
     };
     msgData = JSON.stringify(project);
 
@@ -107,7 +107,7 @@
 </head>
 
 <body>
-<h1>Community Chest</h1>
+<h1 align="center">Community Chest</h1>
 <div class="modal hide" id="pleaseWait" data-backdrop="static" data-keyboard="false">
   <div class="modal-header">
     <center><h1>Processing ...</h1></center>
@@ -124,13 +124,17 @@
   <div class="row-fluid">
     <div class="span2">
      <a href="../findOrCreate.html">
-       <button class="btn" type="button">Find Projects</button>
+       <button class="btn btn-success" type="button">Find Projects</button>
      </a>
     </div>
     <div class="span6">
       <form action="javascript:onSave()">
-        <img src="{{icon}}" /><input type="hidden" value="{{id}}" id="id">
-        <br><input type="text" value="{{icon}}" id="icon">
+        <img src="{{icon}}" >
+        <input type="hidden" value="{{id}}" id="id">
+        <br>
+        <div class="form-group">
+        <input class="form-control" type="text" value="{{icon}}" id="icon">
+        </div>
         <label>Project name</label><input type="text" value="{{name}}" id="name">
         <label>Tagline</label><input type="text" value="{{header}}" id="header">
         <label>Description</label><textarea id="body" rows="8">{{body}}</textarea>
@@ -143,7 +147,7 @@
   <div class="span4">
     <iframe style="vertical-align: middle" src="../map.html" width="128px" height="128px"></iframe>
     <form action="javascript:onPay()">
-        <h2>£<span id='amount'>{{amount}}</span></h2>
+        <h2>£<input type="hidden" id='amount'>{{amount}}>{{amount}}</h2>
         <label>Pay £</label><input type="text" id="payamount">
         <p><button type="submit" class="btn"><img src="https://www.paypalobjects.com/en_US/i/logo/pp_secure_213wx37h.gif"> Contribute</button>
     </form>
