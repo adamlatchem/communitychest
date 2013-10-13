@@ -67,7 +67,7 @@ function sendResultAsTable(res, table) {
   res.end();
 }
 
-function onLogin(req, res, nextt) {
+function onLogin(req, res, next) {
 //  app.use(express.cookieSession());
   res.sendfile('gui/findOrCreate.html');
 };
@@ -81,16 +81,20 @@ function onNewProject(req, res, next) {
 }
 
 function onProject(req, res, next) {
-  if (req.id) {
-    var data = projects[req.id];
+  GenericRequestProcessor(req, res, ProjectDisplay);
+}
+
+function ProjectDisplay(res, next) {
+  if (res.req.params.id) {
+    var data = projects[res.req.params.id];
     var result = template(data);
     res.write(result);
   } else {
     
     // return 404 error
-    res.status(404);
-    res.send('<h1>Error</h1>');
+    res.status(404).send('<h1>Error</h1>');
   }
+  res.end();
 }
 
 // Send HTTP request where body is json dictionary:
@@ -142,15 +146,11 @@ function ProjectQuery(res, searchParameters)
 // Log all requests
 app.use(express.logger());
 
-app.param('id', function(req, res, next, id) {
-  req.id = id;
-});
-
 // Endpoints
 app.use('/login', onLogin);
 app.use('/register', onRegister);
 app.use('/newProject', onNewProject);
-app.use('/project/:id', onProject)
+app.get('/project/:id', onProject);
 app.use('/find', onFind);
 
 // send remaining requests to the gui folder
