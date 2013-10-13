@@ -108,25 +108,41 @@ var standardMarkerProps = [
 			}
 		}
 	],
-	i = 4; // Little counter to loop over above properties object
+object
 
+    var xmlhttp;
+    if (window.XMLHttpRequest)
+    {// code for IE7+, Firefox, Chrome, Opera, Safari
+      xmlhttp = new XMLHttpRequest();
+    }
+    else
+    {// code for IE6, IE5
+      xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
+    }
+    xmlhttp.onreadystatechange = function()
+    {
+      if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+      {
+        var projects = JSON.parse(xmlhttp.responseText);
+console.log(projects);
 // Create several StandardMarkers with the properties object defined above and placed around the map center
-while (i--) 
+projects.forEach(function(i){
+	if (i != null)
+		{
 	map.objects.add(new nokia.maps.map.StandardMarker(
-		/* We use  nokia.maps.geo.Coordinate.walk to generate
-		 * geoCoordinate for created StandardMarker;
-		 * 
-		 * Coordinate.walk takes 3 arguments
-		 * 		- bearing: The bearing to use in the calculation in degrees 
-		 * 		- distance: The distance to the destination in meters 
-		 * 		- [overGreatCircle]: Optional argument
-		 * 				By default false. 
-		 * 				If set true the computation uses the "Great Circle" algorithm otherwise "Rhumb Line". 
-		 */
-		map.center.walk(360 / standardMarkerProps.length * i, 200), 
-		// Initial values for StandardMarker properties
-		standardMarkerProps[i] 
+		new nokia.maps.geo.Coordinate(parseFloat(i.location.lat), parseFloat(i.location.long)),{
+			text: i.name
+		}
+
 	));
+}})
+
+      }
+    }
+    xmlhttp.open('POST', 'http://localhost:8200/projects', true);
+    xmlhttp.setRequestHeader('Content-Type', 'application/json');
+    xmlhttp.send('');
+
 
 		</script>
 	</body>
