@@ -62,6 +62,35 @@
 
     $('#pleaseWait').show();
   }
+
+  function newProject()
+  {
+    var msgData = document.forms[1].name.value;
+    msgData = JSON.stringify(msgData);
+
+    var xmlhttp;
+    if (window.XMLHttpRequest)
+    {// code for IE7+, Firefox, Chrome, Opera, Safari
+      xmlhttp = new XMLHttpRequest();
+    }
+    else
+    {// code for IE6, IE5
+      xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
+    }
+    xmlhttp.onreadystatechange = function()
+    {
+      if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
+      {
+        $('body').html(xmlhttp.responseText);
+      }
+      $('#pleaseWait').hide();
+    }
+    xmlhttp.open('POST', 'newProject', true);
+    xmlhttp.setRequestHeader('Content-Type', 'application/json');
+    xmlhttp.send(msgData);
+
+    $('#pleaseWait').show();
+  }
   </script>
 </head>
 
@@ -90,13 +119,13 @@
       <div id='resultTable'>
       </div>
 
-      <form>
+      <form action="javascript:newProject()">
         <fieldset>
           <legend>Create New Project</legend>
           <label>Project Title</label>
-          <input type="title">
+          <input type="title" id="name">
           <span class="help-block">Enter your new project title above.</span>
-          <button type="submit" class="btn" action="javascript:createNew()">Create</button>
+          <button type="submit" class="btn" >Create</button>
         </fieldset>
       </form>
     </div>

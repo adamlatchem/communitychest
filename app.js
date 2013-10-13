@@ -21,15 +21,20 @@ process.title = '*** CommunityChest ***'
 // Database mapping table
 var mysql      = require('mysql');
 var projects   = new Array();
-var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'pete',
-  password : 'password',
-});
+function dbConnection()
+{
+  var connection = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'pete',
+    password : 'password',
+  });
+  return connection;
+}
 
 var projectTemplate = fs.readFileSync(__dirname + '/templates/project.hbs');
 var template = Handlebars.compile(projectTemplate.toString());
 
+var connection = dbConnection();
 connection.connect();
 connection.query('SELECT * FROM communitychest.project', function(err, rows, fields) {
   if (err) throw err;
@@ -37,6 +42,7 @@ connection.query('SELECT * FROM communitychest.project', function(err, rows, fie
   rows.forEach(function(r) {
     console.log(r.data);
     prj = JSON.parse(r.data);
+    prj.id = r.id;
     projects[r.id] = prj;
   });
   connection.end();
@@ -77,14 +83,41 @@ function onRegister(req, res, next) {
 }
 
 function onNewProject(req, res, next) {
-  res.sendfile('gui/index.html');
+  GenericRequestProcessor(req, res, NewProject);
+}
+
+function NewProject(res, name)
+{
+  // Clone project 1 as a template
+  name = JSON.parse(name);
+  var newProject = JSON.parse(JSON.stringify(projects[1]));
+  newProject.name = name;
+
+  // Insert get id
+  console.log("Saving " + newProject);
+  var db = dbConnection();
+  db.connect();
+  var data = { data : JSON.stringify(newProject) };
+  db.query("REPLACE INTO communitychest.project SET ?", data, function(err, result) {
+    db.end();
+    res.end();
+
+    // Store in cache
+    newProject.id = result.insertId;
+    projects[result.insertId] = newProject;
+
+    // go to project page
+    res.req.params = {};
+    res.req.params.id = result.insertId;
+    ProjectDisplay(res, null);
+  });
 }
 
 function onProject(req, res, next) {
   GenericRequestProcessor(req, res, ProjectDisplay);
 }
 
-function ProjectDisplay(res, next) {
+function ProjectDisplay(res, empty) {
   if (res.req.params.id) {
     var data = projects[res.req.params.id];
     var result = template(data);
@@ -120,6 +153,24 @@ function GenericRequestProcessor(req, res, clazz)
   });
 }
 
+function onSaveProject(req, res, next) {
+  GenericRequestProcessor(req, res, SaveProject);
+}
+
+function SaveProject(res, project)
+{
+  console.log("Saving " + project);
+  var db = dbConnection();
+  var prj = JSON.parse(project);
+  db.connect();
+  var data = {id : prj.id, data : project };
+  projects[data.id] = prj;
+  db.query("REPLACE INTO communitychest.project SET ?", data, function(err) {
+    db.end();
+    res.end();
+  });
+}
+
 function ProjectQuery(res, searchParameters)
 {
   searchParameters = JSON.parse(searchParameters);
@@ -150,6 +201,7 @@ app.use(express.logger());
 app.use('/login', onLogin);
 app.use('/register', onRegister);
 app.use('/newProject', onNewProject);
+app.use('/saveProject', onSaveProject);
 app.get('/project/:id', onProject);
 app.use('/find', onFind);
 
